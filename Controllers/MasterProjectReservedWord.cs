@@ -19,7 +19,7 @@ namespace MasterWord.Controllers
         }
 
 
-        [HttpGet("all")]
+        [HttpGet("all")] 
         public async Task<IActionResult> GetAll()
         {
             var GetAll = await _dbContext.MasterProjectReservedWord
