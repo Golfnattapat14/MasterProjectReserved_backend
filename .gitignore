@@ -362,3 +362,4 @@ obj/SWA.csproj.nuget.dgspec.json
 obj/SWA.csproj.nuget.g.props
 obj/SWA.csproj.nuget.g.targets
 Properties/launchSettings.json
+bin/Debug/net9.0/MasterProjectReserved.dll
