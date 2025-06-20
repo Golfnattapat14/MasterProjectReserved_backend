@@ -1,7 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\git\\MasterProjectReserved_backend\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{0FAA00F0-524B-D34A-4B58-1E9C675DC9E3}|MasterProjectReserved.csproj|d:\\git\\masterprojectreserved_backend\\controllers\\masterprojectreservedword.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{0FAA00F0-524B-D34A-4B58-1E9C675DC9E3}|MasterProjectReserved.csproj|solutionrelative:controllers\\masterprojectreservedword.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -9,8 +14,21 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 0,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MasterProjectReservedWord.cs",
+              "DocumentMoniker": "D:\\git\\MasterProjectReserved_backend\\Controllers\\MasterProjectReservedWord.cs",
+              "RelativeDocumentMoniker": "Controllers\\MasterProjectReservedWord.cs",
+              "ToolTip": "D:\\git\\MasterProjectReserved_backend\\Controllers\\MasterProjectReservedWord.cs",
+              "RelativeToolTip": "Controllers\\MasterProjectReservedWord.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-06-20T06:59:25.753Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
