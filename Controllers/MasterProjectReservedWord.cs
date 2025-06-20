@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ResDb;
 using ResDb.Controllers;
 using System.Xml.Linq;
-using useDb;
+
 
 namespace MasterWord.Controllers
 {
@@ -19,11 +19,12 @@ namespace MasterWord.Controllers
         }
 
 
-        [HttpGet("all")] 
+        [HttpGet("all")]
         public async Task<IActionResult> GetAll()
         {
             var GetAll = await _dbContext.MasterProjectReservedWord
                                             .Where(w => w.IsDeleted == null || w.IsDeleted == false)
+                                            //.OrderBy
                                             .ToListAsync();
             if (GetAll.Any())
             {
