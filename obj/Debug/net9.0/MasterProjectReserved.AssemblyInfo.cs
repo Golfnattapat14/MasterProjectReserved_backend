@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MasterProjectReserved")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fdf68184df05cf011f21d2683b351b90ff2075ca")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bf782d8a0cd70ad2be4e14ee6dc6d10302c07d40")]
 [assembly: System.Reflection.AssemblyProductAttribute("MasterProjectReserved")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MasterProjectReserved")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
