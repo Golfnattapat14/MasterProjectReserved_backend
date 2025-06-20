@@ -1,11 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ResDb;
-using ResDb.Controllers;
+//using ResDb.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
@@ -45,4 +44,5 @@ app.UseAuthorization();
 app.UseCors(MyAllowSpecificOrigins);
 
 app.MapControllers();
+
 app.Run();
