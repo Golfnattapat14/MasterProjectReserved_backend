@@ -24,7 +24,7 @@ namespace MasterWord.Controllers
         {
             var GetAll = await _dbContext.MasterProjectReservedWord
                                             .Where(w => w.IsDeleted == null || w.IsDeleted == false)
-                                            //.OrderBy
+                                            .OrderByDescending(w => w.UpdateDate)
                                             .ToListAsync();
             if (GetAll.Any())
             {
