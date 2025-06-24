@@ -45,14 +45,10 @@ app.UseCors(MyAllowSpecificOrigins);
 
 app.MapControllers();
 
-<<<<<<< HEAD
-=======
-//redirect to Swagger UI
 app.MapGet("/", context =>
 {
     context.Response.Redirect("/swagger/index.html");
     return Task.CompletedTask;
 });
 
->>>>>>> cfa70c664994fc89b5c5ca5bbb894bcaeaf02f40
 app.Run();
