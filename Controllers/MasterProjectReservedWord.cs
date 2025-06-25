@@ -36,9 +36,30 @@ namespace MasterWord.Controllers
                                                w.IsActive
                                            })
                                            .ToListAsync();
-            if (allWords.Any())
+            List<MasterProjectReservedWordRespond> _allWords = new List<MasterProjectReservedWordRespond>();
+            int Sequence = 0;
+            foreach (var item in allWords)
             {
-                return Ok(allWords);
+                MasterProjectReservedWordRespond _item = new MasterProjectReservedWordRespond
+                {
+                    Id = item.Id,
+                    WordName = item.WordName,
+                    CreateDate = item.CreateDate,
+                    CreateBy = item.CreateBy,
+                    UpdateDate = item.UpdateDate,
+                    UpdateBy = item.UpdateBy,
+                    IsDeleted = item.IsDeleted,
+                    IsActive = item.IsActive,
+                    Sequence = Sequence + 1
+                };
+
+                _allWords.Add(_item);
+                Sequence = Sequence + 1;
+            }
+            
+            if (_allWords.Any())
+            {
+                return Ok(_allWords);
             }
             else
             {
@@ -78,13 +99,21 @@ namespace MasterWord.Controllers
                 return BadRequest(ModelState);
             }
 
+            bool isNameUsed = await _dbContext.MasterProjectReservedWord
+                .AnyAsync(w => w.WordName == req.WordName && (w.IsDeleted == null || w.IsDeleted == false));
+
+            if (isNameUsed)
+            {
+                return Conflict(new { message = "ชื่อนี้มีอยู่ในระบบอยู่แล้ว : กรุณาใช้ชื่ออื่น" });
+            }
+
             var newWord = new MasterProjectReservedWord
             {
                 Id = Guid.NewGuid().ToString(),
                 WordName = req.WordName,
                 CreateDate = DateTime.UtcNow,
                 CreateBy = "System",
-                UpdateDate = null, 
+                UpdateDate = null,
                 UpdateBy = "System",
                 IsDeleted = false,
                 IsActive = req.IsActive ?? true,
@@ -96,6 +125,8 @@ namespace MasterWord.Controllers
             return CreatedAtAction(nameof(GetId), new { id = newWord.Id }, newWord);
         }
 
+
+
         [HttpPut("{id}")]
         public async Task<IActionResult> PutWord(string id, [FromBody] MasterProjectReservedWordReq req)
         {
@@ -105,14 +136,23 @@ namespace MasterWord.Controllers
             }
             if (id != req.Id)
             {
-                return BadRequest("ID mismatch between route and request body.");
+                return BadRequest(new { message = "ID mismatch between route and request body." });
+            }
+
+            bool isNameUsed = await _dbContext.MasterProjectReservedWord
+                .AnyAsync(w => w.WordName == req.WordName && w.Id != id && (w.IsDeleted == null || w.IsDeleted == false));
+
+            if (isNameUsed)
+            {
+                return Conflict(new { message = "ชื่อนี้มีอยู่ในระบบอยู่แล้ว : กรุณาใช้ชื่ออื่น" });
             }
 
             var wordToUpdate = await _dbContext.MasterProjectReservedWord
-                                               .FirstOrDefaultAsync(w => w.Id == id && (w.IsDeleted == null || w.IsDeleted == false));
+                .FirstOrDefaultAsync(w => w.Id == id && (w.IsDeleted == null || w.IsDeleted == false));
+
             if (wordToUpdate == null)
             {
-                return NotFound();
+                return NotFound(new { message = "Word not found." });
             }
 
             wordToUpdate.WordName = req.WordName;
@@ -125,6 +165,8 @@ namespace MasterWord.Controllers
 
             return Ok(wordToUpdate);
         }
+
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteId(string id)
