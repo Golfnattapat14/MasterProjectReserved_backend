@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ResDb;
-//using ResDb.Controllers;
-using System.Xml.Linq;
-
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MasterWord.Controllers
 {
@@ -18,17 +18,27 @@ namespace MasterWord.Controllers
             _dbContext = dbContext;
         }
 
-
         [HttpGet("all")]
         public async Task<IActionResult> GetAll()
         {
-            var GetAll = await _dbContext.MasterProjectReservedWord
-                                            .Where(w => w.IsDeleted == null || w.IsDeleted == false)
-                                            .OrderByDescending(w => w.UpdateDate)
-                                            .ToListAsync();
-            if (GetAll.Any())
+            var allWords = await _dbContext.MasterProjectReservedWord
+                                           .Where(w => w.IsDeleted == false)
+                                           .OrderByDescending(w => w.UpdateDate ?? w.CreateDate)
+                                           .Select(w => new
+                                           {
+                                               w.Id,
+                                               w.WordName,
+                                               w.CreateDate,
+                                               w.CreateBy,
+                                               w.UpdateDate,
+                                               w.UpdateBy,
+                                               w.IsDeleted,
+                                               w.IsActive
+                                           })
+                                           .ToListAsync();
+            if (allWords.Any())
             {
-                return Ok(GetAll);
+                return Ok(allWords);
             }
             else
             {
@@ -36,61 +46,104 @@ namespace MasterWord.Controllers
             }
         }
 
-
         [HttpGet("{id}")]
         public async Task<IActionResult> GetId(string id)
         {
-            var word = await _dbContext.MasterProjectReservedWord.FirstOrDefaultAsync(w => w.Id == id);
+            var word = await _dbContext.MasterProjectReservedWord
+                                       .Where(w => w.Id == id)
+                                       .Select(w => new
+                                       {
+                                           w.Id,
+                                           w.WordName,
+                                           w.CreateDate,
+                                           w.CreateBy,
+                                           w.UpdateDate,
+                                           w.UpdateBy,
+                                           w.IsDeleted,
+                                           w.IsActive
+                                       })
+                                       .FirstOrDefaultAsync();
+            if (word == null)
+            {
+                return NotFound();
+            }
             return Ok(word);
         }
+
         [HttpPost]
-        public async Task<IActionResult> DatabaseContext([FromBody] MasterProjectReservedWordReq req)
+        public async Task<IActionResult> CreateWord([FromBody] MasterProjectReservedWordReq req)
         {
-            var Iteam = new MasterProjectReservedWord 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var newWord = new MasterProjectReservedWord
             {
                 Id = Guid.NewGuid().ToString(),
                 WordName = req.WordName,
-                CreateDate = DateTime.Now,
-                CreateBy = "System", 
-                UpdateDate = null,
-                UpdateBy = null,
+                CreateDate = DateTime.UtcNow,
+                CreateBy = "System",
+                UpdateDate = null, 
+                UpdateBy = "System",
                 IsDeleted = false,
-                IsActive = true
-
+                IsActive = req.IsActive ?? true,
             };
-            _dbContext.MasterProjectReservedWord.Add(Iteam);
-            await _dbContext.SaveChangesAsync(); 
-            return CreatedAtAction(nameof(DatabaseContext), new { id = req.Id }, req);
+
+            _dbContext.MasterProjectReservedWord.Add(newWord);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetId), new { id = newWord.Id }, newWord);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> PutWord(string id, [FromBody] MasterProjectReservedWordReq req)
         {
-            MasterProjectReservedWord? w = await _dbContext.MasterProjectReservedWord.FindAsync(id);
-            if (w == null)
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (id != req.Id)
+            {
+                return BadRequest("ID mismatch between route and request body.");
+            }
+
+            var wordToUpdate = await _dbContext.MasterProjectReservedWord
+                                               .FirstOrDefaultAsync(w => w.Id == id && (w.IsDeleted == null || w.IsDeleted == false));
+            if (wordToUpdate == null)
             {
                 return NotFound();
             }
-            w.WordName = req.WordName;
-            w.UpdateDate = DateTime.Now;
-            w.UpdateBy = "System";
+
+            wordToUpdate.WordName = req.WordName;
+            wordToUpdate.IsActive = req.IsActive ?? true;
+            wordToUpdate.UpdateDate = DateTime.UtcNow;
+            wordToUpdate.UpdateBy = "System";
+
+            _dbContext.MasterProjectReservedWord.Update(wordToUpdate);
             await _dbContext.SaveChangesAsync();
-            return NoContent();
+
+            return Ok(wordToUpdate);
         }
 
-        [HttpDelete("{id}")] 
-        public async Task<IActionResult> DeleteId(string id) 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteId(string id)
         {
-            var word = await _dbContext.MasterProjectReservedWord.FirstOrDefaultAsync(w => w.Id == id);
+            var word = await _dbContext.MasterProjectReservedWord
+                                       .FirstOrDefaultAsync(w => w.Id == id && (w.IsDeleted == null || w.IsDeleted == false));
             if (word == null)
             {
-                return NotFound(); 
+                return NotFound();
             }
+
             word.IsDeleted = true;
+            word.UpdateDate = DateTime.UtcNow;
+            word.UpdateBy = "System";
+
             _dbContext.MasterProjectReservedWord.Update(word);
             await _dbContext.SaveChangesAsync();
 
-            return NoContent(); 
+            return NoContent();
         }
     }
 }
