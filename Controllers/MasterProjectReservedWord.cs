@@ -35,7 +35,7 @@ namespace MasterWord.Controllers
                                                w.IsDeleted,
                                                w.IsActive
                                            })
-                                           .ToListAsync();
+                                           .ToListAsync();  
             List<MasterProjectReservedWordRespond> _allWords = new List<MasterProjectReservedWordRespond>();
             int Sequence = 0;
             foreach (var item in allWords)
@@ -132,11 +132,17 @@ namespace MasterWord.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { error = string.Join("; ", errors) });
             }
             if (id != req.Id)
             {
-                return BadRequest(new { message = "ID mismatch between route and request body." });
+                return BadRequest(new { error = "ID mismatch between route and request body." });
+            }
+
+            if (string.IsNullOrWhiteSpace(req.WordName))
+            {
+                return BadRequest(new { error = "Word Name cannot be empty." });
             }
 
             bool isNameUsed = await _dbContext.MasterProjectReservedWord
@@ -144,7 +150,7 @@ namespace MasterWord.Controllers
 
             if (isNameUsed)
             {
-                return Conflict(new { message = "ชื่อนี้มีอยู่ในระบบอยู่แล้ว : กรุณาใช้ชื่ออื่น" });
+                return Conflict(new { error = "ชื่อนี้มีอยู่ในระบบอยู่แล้ว : กรุณาใช้ชื่ออื่น" });
             }
 
             var wordToUpdate = await _dbContext.MasterProjectReservedWord
@@ -152,7 +158,7 @@ namespace MasterWord.Controllers
 
             if (wordToUpdate == null)
             {
-                return NotFound(new { message = "Word not found." });
+                return NotFound(new { error = "Word not found." });
             }
 
             wordToUpdate.WordName = req.WordName;
