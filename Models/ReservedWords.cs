@@ -36,3 +36,21 @@ public class MasterProjectReservedWordReq
     public bool? IsActive { get; set; }
 
 }
+
+    public class FileUploadRequest
+{
+    public required IFormFile File { get; set; }
+}
+
+public class FileUploadResponse
+{
+    public required string FileName { get; set; }
+    public required string FileUrl { get; set; }
+}
+public class FileUploadResult
+{
+    public bool Success { get; set; }
+    public string? FileName { get; set; }
+    public string? FileUrl { get; set; }
+    public string? ErrorMessage { get; set; }
+}

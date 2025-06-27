@@ -4,6 +4,11 @@ using ResDb;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System.IO;
+using System.Net.Mime;
+using System.Threading;
+using MasterWord.Services;
 
 namespace MasterWord.Controllers
 {
@@ -12,10 +17,12 @@ namespace MasterWord.Controllers
     public class MasterWord : ControllerBase
     {
         private readonly DatabaseContext _dbContext;
+        private readonly DropboxService _dropboxService;
 
-        public MasterWord(DatabaseContext dbContext)
+        public MasterWord(DatabaseContext dbContext, DropboxService dropboxService)
         {
             _dbContext = dbContext;
+            _dropboxService = dropboxService;
         }
 
         [HttpGet("all")]
@@ -125,8 +132,6 @@ namespace MasterWord.Controllers
             return CreatedAtAction(nameof(GetId), new { id = newWord.Id }, newWord);
         }
 
-
-
         [HttpPut("{id}")]
         public async Task<IActionResult> PutWord(string id, [FromBody] MasterProjectReservedWordReq req)
         {
@@ -172,8 +177,6 @@ namespace MasterWord.Controllers
             return Ok(wordToUpdate);
         }
 
-
-
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteId(string id)
         {
@@ -192,6 +195,25 @@ namespace MasterWord.Controllers
             await _dbContext.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPost("upload")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadFile([FromForm] FileUploadRequest request, CancellationToken cancellationToken)
+        {
+            if (request.File == null || request.File.Length == 0)
+                return BadRequest(new { error = "No file uploaded." });
+
+            var result = await _dropboxService.UploadFileAsync(request.File, cancellationToken);
+
+            if (!result.Success)
+                return StatusCode(500, new { error = result.ErrorMessage });
+
+            return Ok(new FileUploadResponse
+            {
+                FileName = result.FileName,
+                FileUrl = result.FileUrl
+            });
         }
     }
 }

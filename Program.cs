@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ResDb;
+using MasterWord.Services;
 //using ResDb.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,8 @@ if (string.IsNullOrEmpty(connectionString))
 
 builder.Services.AddDbContext<DatabaseContext>(options =>
     options.UseSqlServer(connectionString));
+
+builder.Services.AddScoped<DropboxService>();
 
 var app = builder.Build();
 
