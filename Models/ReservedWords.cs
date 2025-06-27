@@ -2,7 +2,7 @@
 
 namespace ResDb;
 
-public class MasterProjectReservedWord
+public class MasterProjectReservedWord_BK
 {
     public required string Id { get; set; }
     public required string WordName { get; set; }
@@ -12,9 +12,10 @@ public class MasterProjectReservedWord
     public string? UpdateBy { get; set; }
     public bool IsDeleted { get; set; }
     public bool IsActive { get; set; }
+    public string FilePath { get; set; }
    
 }
-public class MasterProjectReservedWordRespond
+public class MasterProjectReservedWord_BKRespond
 {
     public required string Id { get; set; }
     public required string WordName { get; set; }
@@ -25,9 +26,11 @@ public class MasterProjectReservedWordRespond
     public bool IsDeleted { get; set; }
     public bool IsActive { get; set; }
     public int Sequence { get; set; }
+    public string FilePath { get; set; }
+
 }
 
-public class MasterProjectReservedWordReq
+public class MasterProjectReservedWord_BKReq
 {
     public required string Id { get; set; }
 

@@ -28,7 +28,7 @@ namespace MasterWord.Controllers
         [HttpGet("all")]
         public async Task<IActionResult> GetAll()
         {
-            var allWords = await _dbContext.MasterProjectReservedWord
+            var allWords = await _dbContext.MasterProjectReservedWord_BK
                                            .Where(w => w.IsDeleted == false)
                                            .OrderByDescending(w => w.UpdateDate ?? w.CreateDate)
                                            .Select(w => new
@@ -43,11 +43,11 @@ namespace MasterWord.Controllers
                                                w.IsActive
                                            })
                                            .ToListAsync();  
-            List<MasterProjectReservedWordRespond> _allWords = new List<MasterProjectReservedWordRespond>();
+            List<MasterProjectReservedWord_BKRespond> _allWords = new List<MasterProjectReservedWord_BKRespond>();
             int Sequence = 0;
             foreach (var item in allWords)
             {
-                MasterProjectReservedWordRespond _item = new MasterProjectReservedWordRespond
+                MasterProjectReservedWord_BKRespond _item = new MasterProjectReservedWord_BKRespond
                 {
                     Id = item.Id,
                     WordName = item.WordName,
@@ -77,7 +77,7 @@ namespace MasterWord.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetId(string id)
         {
-            var word = await _dbContext.MasterProjectReservedWord
+            var word = await _dbContext.MasterProjectReservedWord_BK
                                        .Where(w => w.Id == id)
                                        .Select(w => new
                                        {
@@ -99,14 +99,14 @@ namespace MasterWord.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateWord([FromBody] MasterProjectReservedWordReq req)
+        public async Task<IActionResult> CreateWord([FromBody] MasterProjectReservedWord_BKReq req)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            bool isNameUsed = await _dbContext.MasterProjectReservedWord
+            bool isNameUsed = await _dbContext.MasterProjectReservedWord_BK
                 .AnyAsync(w => w.WordName == req.WordName && (w.IsDeleted == null || w.IsDeleted == false));
 
             if (isNameUsed)
@@ -114,7 +114,7 @@ namespace MasterWord.Controllers
                 return Conflict(new { message = "ชื่อนี้มีอยู่ในระบบอยู่แล้ว : กรุณาใช้ชื่ออื่น" });
             }
 
-            var newWord = new MasterProjectReservedWord
+            var newWord = new MasterProjectReservedWord_BK
             {
                 Id = Guid.NewGuid().ToString(),
                 WordName = req.WordName,
@@ -126,14 +126,14 @@ namespace MasterWord.Controllers
                 IsActive = req.IsActive ?? true,
             };
 
-            _dbContext.MasterProjectReservedWord.Add(newWord);
+            _dbContext.MasterProjectReservedWord_BK.Add(newWord);
             await _dbContext.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetId), new { id = newWord.Id }, newWord);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutWord(string id, [FromBody] MasterProjectReservedWordReq req)
+        public async Task<IActionResult> PutWord(string id, [FromBody] MasterProjectReservedWord_BKReq req)
         {
             if (!ModelState.IsValid)
             {
@@ -150,7 +150,7 @@ namespace MasterWord.Controllers
                 return BadRequest(new { error = "Word Name cannot be empty." });
             }
 
-            bool isNameUsed = await _dbContext.MasterProjectReservedWord
+            bool isNameUsed = await _dbContext.MasterProjectReservedWord_BK
                 .AnyAsync(w => w.WordName == req.WordName && w.Id != id && (w.IsDeleted == null || w.IsDeleted == false));
 
             if (isNameUsed)
@@ -158,7 +158,7 @@ namespace MasterWord.Controllers
                 return Conflict(new { error = "ชื่อนี้มีอยู่ในระบบอยู่แล้ว : กรุณาใช้ชื่ออื่น" });
             }
 
-            var wordToUpdate = await _dbContext.MasterProjectReservedWord
+            var wordToUpdate = await _dbContext.MasterProjectReservedWord_BK
                 .FirstOrDefaultAsync(w => w.Id == id && (w.IsDeleted == null || w.IsDeleted == false));
 
             if (wordToUpdate == null)
@@ -171,7 +171,7 @@ namespace MasterWord.Controllers
             wordToUpdate.UpdateDate = DateTime.UtcNow;
             wordToUpdate.UpdateBy = "System";
 
-            _dbContext.MasterProjectReservedWord.Update(wordToUpdate);
+            _dbContext.MasterProjectReservedWord_BK.Update(wordToUpdate);
             await _dbContext.SaveChangesAsync();
 
             return Ok(wordToUpdate);
@@ -180,7 +180,7 @@ namespace MasterWord.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteId(string id)
         {
-            var word = await _dbContext.MasterProjectReservedWord
+            var word = await _dbContext.MasterProjectReservedWord_BK
                                        .FirstOrDefaultAsync(w => w.Id == id && (w.IsDeleted == null || w.IsDeleted == false));
             if (word == null)
             {
@@ -191,7 +191,7 @@ namespace MasterWord.Controllers
             word.UpdateDate = DateTime.UtcNow;
             word.UpdateBy = "System";
 
-            _dbContext.MasterProjectReservedWord.Update(word);
+            _dbContext.MasterProjectReservedWord_BK.Update(word);
             await _dbContext.SaveChangesAsync();
 
             return NoContent();

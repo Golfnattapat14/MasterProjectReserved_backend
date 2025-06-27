@@ -1,4 +1,4 @@
 @SWA_HostAddress = http://127.0.0.1:5000
 
-GET {{SWA_HostAddress}}/api/MasterProjectReservedWord/all-active
+GET {{SWA_HostAddress}}/api/MasterProjectReservedWord_BK/all-active
 Accept: application/json

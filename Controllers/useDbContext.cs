@@ -13,7 +13,7 @@
 //            Console.WriteLine("Test Run in database kub:");
             
          
-//            var wordWithId1 = db.MasterProjectReservedWord.FirstOrDefault(word => word.Id == "2");
+//            var wordWithId1 = db.MasterProjectReservedWord_BK.FirstOrDefault(word => word.Id == "2");
 //            if (wordWithId1 != null)
 //            {
 //                Console.WriteLine($" - ID: {wordWithId1.Id}, Name: {wordWithId1.WordName}, IsActive:{wordWithId1.IsActive}");
@@ -25,7 +25,7 @@
 
 //            // ตัวอย่างโค้ดเดิม (แสดงทั้งหมด)
 //            //Console.WriteLine("\n--- All Words in Database ---");
-//            //foreach (var word in db.MasterProjectReservedWord)
+//            //foreach (var word in db.MasterProjectReservedWord_BK)
 //            //{
 //            //    Console.WriteLine($" - ID: {word.Id}, Name: {word.WordName}, IsActive:{word.IsActive}");
 //            //}
