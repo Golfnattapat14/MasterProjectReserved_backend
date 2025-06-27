@@ -34,20 +34,21 @@ namespace MasterWord.Controllers
                                            .Select(w => new
                                            {
                                                w.Id,
-                                               w.WordName,
+                                               WordName = w.WordName ?? string.Empty,
                                                w.CreateDate,
-                                               w.CreateBy,
+                                               CreateBy = w.CreateBy ?? string.Empty,
                                                w.UpdateDate,
-                                               w.UpdateBy,
+                                               UpdateBy = w.UpdateBy ?? string.Empty,
                                                w.IsDeleted,
-                                               w.IsActive
+                                               w.IsActive,
+                                               FilePath = w.FilePath ?? string.Empty
                                            })
-                                           .ToListAsync();  
-            List<MasterProjectReservedWord_BKRespond> _allWords = new List<MasterProjectReservedWord_BKRespond>();
+                                           .ToListAsync();
+            List<object> _allWords = new List<object>();
             int Sequence = 0;
             foreach (var item in allWords)
             {
-                MasterProjectReservedWord_BKRespond _item = new MasterProjectReservedWord_BKRespond
+                _allWords.Add(new
                 {
                     Id = item.Id,
                     WordName = item.WordName,
@@ -57,13 +58,14 @@ namespace MasterWord.Controllers
                     UpdateBy = item.UpdateBy,
                     IsDeleted = item.IsDeleted,
                     IsActive = item.IsActive,
-                    Sequence = Sequence + 1
-                };
-
-                _allWords.Add(_item);
+                    Sequence = Sequence + 1,
+                    FilePath = item.FilePath,
+                    PreviewUrl = ConvertDropboxUrlForPreview(item.FilePath),
+                    DownloadUrl = ConvertDropboxUrlForDownload(item.FilePath)
+                });
                 Sequence = Sequence + 1;
             }
-            
+
             if (_allWords.Any())
             {
                 return Ok(_allWords);
@@ -88,14 +90,29 @@ namespace MasterWord.Controllers
                                            w.UpdateDate,
                                            w.UpdateBy,
                                            w.IsDeleted,
-                                           w.IsActive
+                                           w.IsActive,
+                                           w.FilePath
                                        })
                                        .FirstOrDefaultAsync();
             if (word == null)
             {
                 return NotFound();
             }
-            return Ok(word);
+            var result = new
+            {
+                word.Id,
+                word.WordName,
+                word.CreateDate,
+                word.CreateBy,
+                word.UpdateDate,
+                word.UpdateBy,
+                word.IsDeleted,
+                word.IsActive,
+                FilePath = word.FilePath ?? string.Empty,
+                PreviewUrl = ConvertDropboxUrlForPreview(word.FilePath ?? string.Empty),
+                DownloadUrl = ConvertDropboxUrlForDownload(word.FilePath ?? string.Empty)
+            };
+            return Ok(result);
         }
 
         [HttpPost]
@@ -124,6 +141,7 @@ namespace MasterWord.Controllers
                 UpdateBy = "System",
                 IsDeleted = false,
                 IsActive = req.IsActive ?? true,
+                FilePath = string.Empty
             };
 
             _dbContext.MasterProjectReservedWord_BK.Add(newWord);
@@ -204,16 +222,90 @@ namespace MasterWord.Controllers
             if (request.File == null || request.File.Length == 0)
                 return BadRequest(new { error = "No file uploaded." });
 
+            MasterProjectReservedWord_BK? fileRecord = null;
+            if (!string.IsNullOrEmpty(request.Id))
+            {
+                fileRecord = await _dbContext.MasterProjectReservedWord_BK
+                    .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+
+                if (fileRecord != null && !string.IsNullOrEmpty(fileRecord.FilePath))
+                {
+                    return Conflict(new
+                    {
+                        AlreadyExists = true,
+                        FileUrl = fileRecord.FilePath,
+                        PreviewUrl = ConvertDropboxUrlForPreview(fileRecord.FilePath),
+                        DownloadUrl = ConvertDropboxUrlForDownload(fileRecord.FilePath),
+                        Message = "Cannot upload: this record already has a file."
+                    });
+                }
+            }
+
             var result = await _dropboxService.UploadFileAsync(request.File, cancellationToken);
 
             if (!result.Success)
                 return StatusCode(500, new { error = result.ErrorMessage });
 
-            return Ok(new FileUploadResponse
+            if (fileRecord != null)
             {
-                FileName = result.FileName,
-                FileUrl = result.FileUrl
+                fileRecord.FilePath = result.FileUrl;
+                _dbContext.Update(fileRecord);
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+
+            return Ok(new
+            {
+                FileName = result.FileName!,
+                FileUrl = result.FileUrl!,
+                PreviewUrl = ConvertDropboxUrlForPreview(result.FileUrl!),
+                DownloadUrl = ConvertDropboxUrlForDownload(result.FileUrl!)
             });
+        }
+
+        [HttpDelete("delete-file/{id}")]
+        public async Task<IActionResult> DeleteFile(string id, CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrEmpty(id))
+                return BadRequest(new { error = "Id is required." });
+
+            var fileRecord = await _dbContext.MasterProjectReservedWord_BK
+                .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+            if (fileRecord == null || string.IsNullOrEmpty(fileRecord.FilePath))
+                return NotFound(new { error = "File not found for this record." });
+
+            var deleteResult = await _dropboxService.DeleteFileAsync(fileRecord.FilePath, cancellationToken);
+
+            if (!deleteResult.Success)
+                return StatusCode(500, new { error = deleteResult.ErrorMessage });
+
+            fileRecord.FilePath = string.Empty;
+            _dbContext.Update(fileRecord);
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return Ok(new { message = "File deleted successfully." });
+        }
+
+        private string ConvertDropboxUrlForPreview(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return string.Empty;
+            int idx = url.LastIndexOf("=1");
+            if (idx >= 0 && idx == url.Length - 2)
+            {
+                return url.Substring(0, idx) + "=0";
+            }
+            return url;
+        }
+
+        private string ConvertDropboxUrlForDownload(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return string.Empty;
+            int idx = url.LastIndexOf("=0");
+            if (idx >= 0 && idx == url.Length - 2)
+            {
+                return url.Substring(0, idx) + "=1";
+            }
+            return url;
         }
     }
 }

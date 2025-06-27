@@ -80,6 +80,22 @@
   },
   {
     "ContainingType": "MasterWord.Controllers.MasterWord",
+    "Method": "DeleteFile",
+    "RelativePath": "api/MasterWord/delete-file/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MasterWord.Controllers.MasterWord",
     "Method": "UploadFile",
     "RelativePath": "api/MasterWord/upload",
     "HttpMethod": "POST",
@@ -89,6 +105,11 @@
       {
         "Name": "File",
         "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      },
+      {
+        "Name": "Id",
+        "Type": "System.String",
         "IsRequired": false
       }
     ],
