@@ -9,7 +9,7 @@
     "Parameters": [
       {
         "Name": "req",
-        "Type": "ResDb.MasterProjectReservedWordReq",
+        "Type": "ResDb.MasterProjectReservedWord_BKReq",
         "IsRequired": true
       }
     ],
@@ -46,7 +46,7 @@
       },
       {
         "Name": "req",
-        "Type": "ResDb.MasterProjectReservedWordReq",
+        "Type": "ResDb.MasterProjectReservedWord_BKReq",
         "IsRequired": true
       }
     ],
@@ -76,6 +76,22 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MasterWord.Controllers.MasterWord",
+    "Method": "UploadFile",
+    "RelativePath": "api/MasterWord/upload",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "File",
+        "Type": "Microsoft.AspNetCore.Http.IFormFile",
+        "IsRequired": false
+      }
+    ],
     "ReturnTypes": []
   }
 ]
