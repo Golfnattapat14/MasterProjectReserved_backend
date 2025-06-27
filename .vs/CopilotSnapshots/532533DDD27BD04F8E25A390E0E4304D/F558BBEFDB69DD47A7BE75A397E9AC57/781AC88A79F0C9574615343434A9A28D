@@ -1,0 +1,18 @@
+﻿{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=203.147.62.46;Database=ThaihealthEGrantingDB;User ID=sa;Password=P@ssw0rd1234!@#$;TrustServerCertificate=True;"
+  },
+  "Dropbox": {
+    "AppKey": "z6ehhzp9p4se11u",
+    "AppSecret": "ghlu15cnzr0wnju",
+    "AccessToken": "YOUR_LONG_LIVED_DROPBOX_ACCESS_TOKEN",
+    "RedirectUri": "http://localhost:7001/DropboxAuth/exchange"
+  }
+}

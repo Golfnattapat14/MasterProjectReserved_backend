@@ -1,0 +1,58 @@
+﻿using Dropbox.Api;
+using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
+using System.IO;
+using System.Net.Http;
+using System.Text.Json;
+using System.Collections.Generic;
+
+namespace Services
+{
+    public class DropboxService
+    {
+        private readonly string _accessToken;
+        private readonly DropboxClient _client;
+
+        public DropboxService(IConfiguration configuration)
+        {
+            _accessToken = configuration["Dropbox:AccessToken"];
+            _client = new DropboxClient(_accessToken);
+        }
+
+        public async Task UploadFileAsync(string dropboxPath, Stream fileStream)
+        {
+            await _client.Files.UploadAsync(
+                dropboxPath,
+                Dropbox.Api.Files.WriteMode.Overwrite.Instance,
+                body: fileStream
+            );
+        }
+
+        public async Task<string?> ExchangeCodeForAccessTokenAsync(string code, string redirectUri, string appKey, string appSecret)
+        {
+            using var httpClient = new HttpClient();
+            var request = new HttpRequestMessage(HttpMethod.Post, "https://api.dropbox.com/oauth2/token");
+            var content = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("code", code),
+                new KeyValuePair<string, string>("grant_type", "authorization_code"),
+                new KeyValuePair<string, string>("client_id", appKey),
+                new KeyValuePair<string, string>("client_secret", appSecret),
+                new KeyValuePair<string, string>("redirect_uri", redirectUri)
+            });
+            request.Content = content;
+
+            var response = await httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("access_token", out var tokenElement))
+            {
+                return tokenElement.GetString();
+            }
+            return null;
+        }
+    }
+}

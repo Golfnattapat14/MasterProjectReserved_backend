@@ -1,0 +1,38 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Services;
+using System.Threading.Tasks;
+
+namespace Controllers
+{
+    [ApiController]
+    [Route("[controller]")]
+    public class DropboxAuthController : ControllerBase
+    {
+        private readonly DropboxService _dropboxService;
+        private readonly IConfiguration _config;
+
+        public DropboxAuthController(DropboxService dropboxService, IConfiguration config)
+        {
+            _dropboxService = dropboxService;
+            _config = config;
+        }
+
+        [HttpGet("exchange")]
+        public async Task<IActionResult> ExchangeCode([FromQuery] string code)
+        {
+            var appKey = _config["Dropbox:AppKey"];
+            var appSecret = _config["Dropbox:AppSecret"];
+            var redirectUri = "http://localhost/"; // Use your actual redirect URI
+
+            var accessToken = await _dropboxService.ExchangeCodeForAccessTokenAsync(code, redirectUri, appKey, appSecret);
+
+            if (accessToken == null)
+                return BadRequest("Failed to exchange code for access token.");
+
+            // For demo: return the access token in the response.
+            // In production: store it securely (not in appsettings.json).
+            return Ok(new { accessToken });
+        }
+    }
+}

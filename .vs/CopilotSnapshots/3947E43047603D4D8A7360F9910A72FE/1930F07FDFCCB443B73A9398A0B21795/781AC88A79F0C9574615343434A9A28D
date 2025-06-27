@@ -1,0 +1,18 @@
+﻿{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=203.147.62.46;Database=ThaihealthEGrantingDB;User ID=sa;Password=P@ssw0rd1234!@#$;TrustServerCertificate=True;"
+  },
+  "Dropbox": {
+    "AppKey": "z6ehhzp9p4se11u",
+    "AppSecret": "ghlu15cnzr0wnju",
+    "AccessToken": "sl.u.AF2R2UButoa63PmgMbpB6tUzC7weJfV2zKRRm8JVVvYAQ-yqIGRbxxTfjWyqIAgzZ68J2a8j8_GZy4UujVrMfe6IDt6h1YSp8yYM7MZ3L-aC4rBytN8jYW2Pil7UPpqlh7vsNFLon19ofiSKG88cquleOPXFMs0brJx_uGIy6hLRfQS0ZAU0tUoOKFwEbJkJMsw7cNwOUDbafz-RS2gvZGkah_AZRNR1qH7ErYKPc_270GLyelAQlBPVB8C_RHIDIotxdS79WeVG6DmaHJhFhhfKfG6TVdDKVXAWIWIAwYrKIVOFmKoBZsEJQLlYfCCWGqGeCKKp8Vc599Aiyl5INi18N-x713N9Q7mUE0aHdArQV9oq2ziZBmP_UOWZHLcGAiSThrWHAmhNejn5bhW9Z0SC8fnL8lUC-13ghz4hXTmFORuTT88KUwrktp_db-uyuWSdgTwAHHabYnriBPUqejsjfSOREtrev0po2TN1zc-E6Z3Tp9VFOGE5BjoJ2rCKNXpwgpzE14So_aC8UihDB-FYssf6MElptMQwisX5hNNrY9OzTqrXB5PPLwYIP56SGj1GEJJp4GxNGPY49qDTyKw0gHb7c7HE-8-bHWMoFWXjvXfzsvWmVeF82jxGTb6_KQBHhhyWqG4ywTsIeBNdRF5rejA7yfB-lNa30g8VBMwXw_XF551W_uAk_pzcvJzrmhaz-7OUqVPfe5UEmCyWhyEpulPFxafjxUNyPiuufN2JLr2lr2Ybd51xfFEi4Gzt9pEmrPhy2Kr-6W7JRwD_Q8cy0Eb6XC8qGBLdpFCCckQvlJwPT_rgCjaUNy9V6f5V8x2VVs5TfuIH3Vf6tjp0rt3DrC_kHu52IxzE3lDSpwZ8X6AX4i7Kzp5zGr91m8fv2MfXpSJVe5qDxddkFU07IZjNDa2JfoD56H_kyrqmXjoRMQx5FX4jA5BYVq9FcLFTa0w0xjEcOHFCwmECZxHq5yLMAPdZ6P0qDb816OYwZ3lDKIx4t9jDiUnJxwdx2or_S7L5aiq2OGjlVuIOMpnnEDyICFL-Y5p7bkKzQdoYitkgMTna16WD0KqDUAxRnTzLDlDDrS9t9OjNn1qy1TtQtPON-_I1BEzBVra7ZumLXL2i0OluGvMkSle5GdqBV9_iPqQxuRuXJscFp1xYQkzL3YhCLWYRWYLFhl_N7VV96lPHoFwqP0ZITlQ2CwG_3mSCAmcCAoc2FI17ZvaXuI2gPZp4Ji-Xn5imj4FBlokBNF2AiSlQKzWomUvLLlj3cYMzBeUDwSkEC4q8BLjL-bpx7dMVQFljm2f8-nBSYaFfTp6T23efwLanMODyxn1WN61YdTiurWawclj-tiWewcCBy8z5NsIoUmUEyRlNDwzcmybMJc6DLPqh_kYDcwPUSNdWjHTQhakyyW911EBMmA9nh6LHc4Ytc8wUpnZow7zOVqUL0w",
+    "RedirectUri": "http://localhost:7001/DropboxAuth/exchange"
+  }
+}

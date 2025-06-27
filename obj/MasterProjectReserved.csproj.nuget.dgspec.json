@@ -1,27 +1,31 @@
 {
   "format": 1,
   "restore": {
-    "/Users/wanlop/Github/MasterProjectReserved_backend/MasterProjectReserved.csproj": {}
+    "D:\\git\\MasterProjectReserved_backend\\MasterProjectReserved.csproj": {}
   },
   "projects": {
-    "/Users/wanlop/Github/MasterProjectReserved_backend/MasterProjectReserved.csproj": {
+    "D:\\git\\MasterProjectReserved_backend\\MasterProjectReserved.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/wanlop/Github/MasterProjectReserved_backend/MasterProjectReserved.csproj",
+        "projectUniqueName": "D:\\git\\MasterProjectReserved_backend\\MasterProjectReserved.csproj",
         "projectName": "MasterProjectReserved",
-        "projectPath": "/Users/wanlop/Github/MasterProjectReserved_backend/MasterProjectReserved.csproj",
-        "packagesPath": "/Users/wanlop/.nuget/packages/",
-        "outputPath": "/Users/wanlop/Github/MasterProjectReserved_backend/obj/",
+        "projectPath": "D:\\git\\MasterProjectReserved_backend\\MasterProjectReserved.csproj",
+        "packagesPath": "C:\\Users\\GGGCANA\\.nuget\\packages\\",
+        "outputPath": "D:\\git\\MasterProjectReserved_backend\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/Users/wanlop/Github/MasterProjectReserved_backend/NuGet.Config",
-          "/Users/wanlop/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\GGGCANA\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
-          "/usr/local/share/dotnet/sdk/7.0.312/Sdks/Microsoft.NET.Sdk.Web/library-packs": {},
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -34,12 +38,30 @@
           "warnAsError": [
             "NU1605"
           ]
-        }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net7.0": {
           "targetAlias": "net7.0",
           "dependencies": {
+            "Dropbox.Api": {
+              "target": "Package",
+              "version": "[7.0.0, )"
+            },
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.70.0, )"
+            },
+            "Google.Apis.Drive.v3": {
+              "target": "Package",
+              "version": "[1.69.0.3783, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[7.0.5, )"
@@ -67,6 +89,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.5.0, )"
+            },
+            "Swashbuckle.AspNetCore.Filters": {
+              "target": "Package",
+              "version": "[9.0.0, )"
             }
           },
           "imports": [
@@ -88,7 +114,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.312/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300\\RuntimeIdentifierGraph.json"
         }
       }
     }

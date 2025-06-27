@@ -1,0 +1,30 @@
+﻿using Dropbox.Api;
+using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks;
+using System.IO;
+
+namespace Services
+{
+    public class DropboxService
+    {
+        private readonly string _accessToken;
+        private readonly DropboxClient _client;
+
+        public DropboxService(IConfiguration configuration)
+        {
+            _accessToken = configuration["Dropbox:AccessToken"];
+            _client = new DropboxClient(_accessToken);
+        }
+
+        public async Task UploadFileAsync(string dropboxPath, Stream fileStream)
+        {
+            await _client.Files.UploadAsync(
+                dropboxPath,
+                Dropbox.Api.Files.WriteMode.Overwrite.Instance,
+                body: fileStream
+            );
+        }
+
+        // Add more Dropbox file operations as needed
+    }
+}

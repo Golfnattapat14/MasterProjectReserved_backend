@@ -1,0 +1,99 @@
+﻿using Google.Apis.Auth.OAuth2;
+using Google.Apis.Auth.OAuth2.Flows;
+using Google.Apis.Auth.OAuth2.Responses;
+using Google.Apis.Drive.v3;
+using Google.Apis.Util.Store;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using System;
+
+namespace ResDb.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class GoogleDriveAuthController : ControllerBase
+    {
+        private readonly IConfiguration _configuration;
+
+        public GoogleDriveAuthController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+        [HttpGet("callback")]
+        public async Task<IActionResult> GoogleDriveAuthCallback(string code, string? error)
+        {
+            if (!string.IsNullOrEmpty(error))
+            {
+                return BadRequest($"Error during Google OAuth: {error}");
+            }
+
+            if (string.IsNullOrEmpty(code))
+            {
+                return BadRequest("No authorization code received.");
+            }
+
+            string clientId = _configuration["GoogleDrive:ClientId"];
+            string clientSecret = _configuration["GoogleDrive:ClientSecret"];
+
+            if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(clientSecret))
+            {
+                return StatusCode(500, "GoogleDrive ClientId or ClientSecret is not configured in appsettings.json.");
+            }
+
+            try
+            {
+                ClientSecrets clientSecrets = new ClientSecrets
+                {
+                    ClientId = clientId,
+                    ClientSecret = clientSecret
+                };
+
+                string[] scopes = { DriveService.Scope.DriveFile };
+
+                IAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow(new GoogleAuthorizationCodeFlow.Initializer
+                {
+                    ClientSecrets = clientSecrets,
+                    Scopes = scopes,
+                    DataStore = new NullDataStore()
+                });
+
+                TokenResponse tokenResponse = await flow.ExchangeCodeForTokenAsync(
+                    "user",
+                    code,
+                    "https://localhost:44378/api/GoogleDriveAuth/callback",
+                    CancellationToken.None
+                );
+
+                if (!string.IsNullOrEmpty(tokenResponse.RefreshToken))
+                {
+                    return Ok("<h1>OAuth Success!</h1>" +
+                              $"<p>Refresh Token: <strong style='color: green;'>{tokenResponse.RefreshToken}</strong></p>" +
+                              "<p>Copy to appsettings.json. You can close this tab.</p>");
+                }
+                else
+                {
+                    return Ok("<h1>OAuth Success!</h1>" +
+                              "<p>No Refresh Token. This can happen if already authorized or offline access wasn't requested.</p>" +
+                              "<p>Check Google Console settings (Offline Access) or revoke app access and retry.</p>");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+    }
+
+    public class NullDataStore : IDataStore
+    {
+        public Task ClearAsync() => Task.CompletedTask;
+        public Task DeleteAsync<T>(string key) => Task.CompletedTask;
+        public Task<T> GetAsync<T>(string key) => Task.FromResult(default(T));
+        public Task StoreAsync<T>(string key, T value) => Task.CompletedTask;
+    }
+}

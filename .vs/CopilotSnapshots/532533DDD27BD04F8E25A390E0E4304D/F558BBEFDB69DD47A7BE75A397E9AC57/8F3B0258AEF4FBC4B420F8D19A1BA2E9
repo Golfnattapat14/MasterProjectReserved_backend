@@ -1,0 +1,227 @@
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ResDb;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using System.IO;
+using System.Collections.Generic;
+using MasterProjectReserved.Models;
+using Microsoft.Extensions.Logging;
+using Services;
+using Microsoft.AspNetCore.Http;
+
+namespace MasterWord.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class MasterWord : ControllerBase
+    {
+        private readonly DatabaseContext _dbContext;
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<MasterWord> _logger;
+        private readonly DropboxService _dropboxService;
+
+        public MasterWord(DatabaseContext dbContext, IConfiguration configuration, ILogger<MasterWord> logger, DropboxService dropboxService)
+        {
+            _dbContext = dbContext;
+            _configuration = configuration;
+            _logger = logger;
+            _dropboxService = dropboxService;
+        }
+
+        [HttpGet("all")]
+        public async Task<IActionResult> GetAll()
+        {
+            var allWords = await _dbContext.MasterProjectReservedWord
+                                            .Where(w => w.IsDeleted == false)
+                                            .OrderByDescending(w => w.UpdateDate ?? w.CreateDate)
+                                            .Select(w => new
+                                            {
+                                                w.Id,
+                                                w.WordName,
+                                                w.CreateDate,
+                                                w.CreateBy,
+                                                w.UpdateDate,
+                                                w.UpdateBy,
+                                                w.IsDeleted,
+                                                w.IsActive
+                                            })
+                                            .ToListAsync();
+            List<MasterProjectReservedWordRespond> _allWords = new List<MasterProjectReservedWordRespond>();
+            int Sequence = 0;
+            foreach (var item in allWords)
+            {
+                MasterProjectReservedWordRespond _item = new MasterProjectReservedWordRespond
+                {
+                    Id = item.Id,
+                    WordName = item.WordName,
+                    CreateDate = item.CreateDate,
+                    CreateBy = item.CreateBy,
+                    UpdateDate = item.UpdateDate,
+                    UpdateBy = item.UpdateBy,
+                    IsDeleted = item.IsDeleted,
+                    IsActive = item.IsActive,
+                    Sequence = Sequence + 1
+                };
+
+                _allWords.Add(_item);
+                Sequence = Sequence + 1;
+            }
+
+            if (_allWords.Any())
+            {
+                return Ok(_allWords);
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetId(string id)
+        {
+            var word = await _dbContext.MasterProjectReservedWord
+                                        .Where(w => w.Id == id)
+                                        .Select(w => new
+                                        {
+                                            w.Id,
+                                            w.WordName,
+                                            w.CreateDate,
+                                            w.CreateBy,
+                                            w.UpdateDate,
+                                            w.UpdateBy,
+                                            w.IsDeleted,
+                                            w.IsActive
+                                        })
+                                        .FirstOrDefaultAsync();
+            if (word == null)
+            {
+                return NotFound();
+            }
+            return Ok(word);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateWord([FromBody] MasterProjectReservedWordReq req)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            bool isNameUsed = await _dbContext.MasterProjectReservedWord
+                .AnyAsync(w => w.WordName == req.WordName && (w.IsDeleted == null || w.IsDeleted == false));
+
+            if (isNameUsed)
+            {
+                return Conflict(new { message = "ชื่อนี้มีอยู่ในระบบอยู่แล้ว : กรุณาใช้ชื่ออื่น" });
+            }
+
+            var newWord = new MasterProjectReservedWord
+            {
+                Id = Guid.NewGuid().ToString(),
+                WordName = req.WordName,
+                CreateDate = DateTime.UtcNow,
+                CreateBy = "System",
+                UpdateDate = null,
+                UpdateBy = "System",
+                IsDeleted = false,
+                IsActive = req.IsActive ?? true,
+            };
+
+            _dbContext.MasterProjectReservedWord.Add(newWord);
+            await _dbContext.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetId), new { id = newWord.Id }, newWord);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutWord(string id, [FromBody] MasterProjectReservedWordReq req)
+        {
+            if (!ModelState.IsValid)
+            {
+                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                return BadRequest(new { error = string.Join("; ", errors) });
+            }
+            if (id != req.Id)
+            {
+                return BadRequest(new { error = "ID mismatch between route and request body." });
+            }
+
+            if (string.IsNullOrWhiteSpace(req.WordName))
+            {
+                return BadRequest(new { error = "Word Name cannot be empty." });
+            }
+
+            bool isNameUsed = await _dbContext.MasterProjectReservedWord
+                .AnyAsync(w => w.WordName == req.WordName && w.Id != id && (w.IsDeleted == null || w.IsDeleted == false));
+
+            if (isNameUsed)
+            {
+                return Conflict(new { error = "ชื่อนี้มีอยู่ในระบบอยู่แล้ว : กรุณาใช้ชื่ออื่น" });
+            }
+
+            var wordToUpdate = await _dbContext.MasterProjectReservedWord
+                .FirstOrDefaultAsync(w => w.Id == id && (w.IsDeleted == null || w.IsDeleted == false));
+
+            if (wordToUpdate == null)
+            {
+                return NotFound(new { error = "Word not found." });
+            }
+
+            wordToUpdate.WordName = req.WordName;
+            wordToUpdate.IsActive = req.IsActive ?? true;
+            wordToUpdate.UpdateDate = DateTime.UtcNow;
+            wordToUpdate.UpdateBy = "System";
+
+            _dbContext.MasterProjectReservedWord.Update(wordToUpdate);
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(wordToUpdate);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteId(string id)
+        {
+            var word = await _dbContext.MasterProjectReservedWord
+                                        .FirstOrDefaultAsync(w => w.Id == id && (w.IsDeleted == null || w.IsDeleted == false));
+            if (word == null)
+            {
+                return NotFound();
+            }
+
+            word.IsDeleted = true;
+            word.UpdateDate = DateTime.UtcNow;
+            word.UpdateBy = "System";
+
+            _dbContext.MasterProjectReservedWord.Update(word);
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpPost("upload-to-dropbox")]
+        public async Task<IActionResult> UploadToDropbox(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            try
+            {
+                using (var stream = file.OpenReadStream())
+                {
+                    await _dropboxService.UploadFileAsync($"/{file.FileName}", stream);
+                }
+                return Ok("File uploaded to Dropbox.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading file to Dropbox.");
+                return StatusCode(500, $"Failed to upload file to Dropbox: {ex.Message}");
+            }
+        }
+    }
+}

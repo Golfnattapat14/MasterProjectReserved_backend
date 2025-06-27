@@ -1,0 +1,49 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Linq;
+
+namespace MasterProjectReserved.SwaggerFilters
+{
+    public class SwaggerFileOperationFilter : IOperationFilter
+    {
+        public void Apply(OpenApiOperation operation, OperationFilterContext context)
+        {
+            var formFileParameters = context.ApiDescription.ActionDescriptor.Parameters
+                .Where(p => p.ParameterType == typeof(IFormFile) || p.ParameterType == typeof(IFormFileCollection))
+                .ToList();
+
+            var formFileModels = context.ApiDescription.ActionDescriptor.Parameters
+                .Where(p => p.BindingInfo?.BindingSource?.Id == "Form" && p.ParameterType.IsClass)
+                .SelectMany(p => p.ParameterType.GetProperties())
+                .Where(prop => prop.PropertyType == typeof(IFormFile) || prop.PropertyType == typeof(IFormFileCollection))
+                .ToList();
+
+            if (!formFileParameters.Any() && !formFileModels.Any())
+            {
+                return;
+            }
+
+            operation.RequestBody = new OpenApiRequestBody
+            {
+                Content = {
+                    ["multipart/form-data"] = new OpenApiMediaType
+                    {
+                        Schema = new OpenApiSchema
+                        {
+                            Type = "object",
+                            Properties = {
+                                ["file"] = new OpenApiSchema
+                                {
+                                    Type = "string",
+                                    Format = "binary",
+                                    Description = "Upload file"
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+        }
+    }
+}

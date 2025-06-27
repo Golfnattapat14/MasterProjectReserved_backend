@@ -1,0 +1,15 @@
+﻿using Microsoft.EntityFrameworkCore;
+using ResDb;
+using Microsoft.AspNetCore.Http;
+using MasterProjectReserved.Models;
+
+namespace ResDb;
+
+public class DatabaseContext : DbContext
+{
+    public DbSet<MasterProjectReservedWord> MasterProjectReservedWord { get; set; }
+
+    public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
+    {
+    }
+}
