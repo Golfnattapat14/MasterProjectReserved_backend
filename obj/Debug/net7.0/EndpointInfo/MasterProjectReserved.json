@@ -143,17 +143,45 @@
                   "File": {
                     "type": "string",
                     "format": "binary"
+                  },
+                  "Id": {
+                    "type": "string"
                   }
                 }
               },
               "encoding": {
                 "File": {
                   "style": "form"
+                },
+                "Id": {
+                  "style": "form"
                 }
               }
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterWord/delete-file/{id}": {
+      "delete": {
+        "tags": [
+          "MasterWord"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
