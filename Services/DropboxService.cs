@@ -38,7 +38,6 @@ namespace MasterWord.Services
                 );
 
                 var sharedLink = await dbx.Sharing.CreateSharedLinkWithSettingsAsync(dropboxPath);
-                var updatedDate = DateTime.Now;
                 return new FileUploadResult
                 {
                     Success = true,
@@ -59,8 +58,6 @@ namespace MasterWord.Services
                 var dropboxPath = ExtractDropboxPath(fileUrl);
                 using var dbx = new DropboxClient(_accessToken);
                 await dbx.Files.DeleteV2Async(dropboxPath);
-                var updatedDate = DateTime.Now;
-
                 return new DropboxDeleteResult { Success = true };
             }
             catch (System.Exception ex)
