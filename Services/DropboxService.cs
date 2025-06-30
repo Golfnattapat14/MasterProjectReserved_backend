@@ -1,11 +1,12 @@
+﻿using Azure.Core;
+using Dropbox.Api;
+using Dropbox.Api.Files;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
+using ResDb;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Dropbox.Api;
-using Dropbox.Api.Files;
-using ResDb;
 
 namespace MasterWord.Services
 {
@@ -51,26 +52,55 @@ namespace MasterWord.Services
             }
         }
 
-        public async Task<DropboxDeleteResult> DeleteFileAsync(string fileUrl, CancellationToken cancellationToken)
-        {
-            try
+            public async Task<DropboxDeleteResult> DeleteFileAsync(string fileUrl, CancellationToken cancellationToken)
             {
-                var dropboxPath = ExtractDropboxPath(fileUrl);
-                using var dbx = new DropboxClient(_accessToken);
-                CancellationToken cancellationToken1 = cancellationToken;
-                
-                return new DropboxDeleteResult { Success = true };
+                try
+                {
+                    var dropboxPath = ExtractDropboxPath(fileUrl);
+                    using var dbx = new DropboxClient(_accessToken);
+                    await dbx.Files.DeleteV2Async(dropboxPath);
+                    return new DropboxDeleteResult { Success = true  };
+                }
+                catch (System.Exception ex)
+                {
+                    return new DropboxDeleteResult { Success = false, ErrorMessage = ex.Message };
+                }
             }
-            catch (System.Exception ex)
-            {
-                return new DropboxDeleteResult { Success = false, ErrorMessage = ex.Message };
-            }
-        }
+
 
         private string ExtractDropboxPath(string fileUrl)
         {
-            
-            return fileUrl;
+            if (string.IsNullOrEmpty(fileUrl))
+                throw new System.ArgumentException("File URL is null or empty.", nameof(fileUrl));
+
+            if (fileUrl.StartsWith("/"))
+                return fileUrl;
+
+            try
+            {
+                var uri = new System.Uri(fileUrl);
+                var segments = uri.Segments;
+                if (segments.Length > 0)
+                {
+                    var fileName = segments[segments.Length - 1];
+                    var cleanFileName = fileName.Split('?')[0];
+                    if (!string.IsNullOrWhiteSpace(cleanFileName))
+                        return "/" + cleanFileName;
+                }
+            }
+            catch
+            {
+                var lastSlash = fileUrl.LastIndexOf('/');
+                if (lastSlash >= 0 && lastSlash < fileUrl.Length - 1)
+                {
+                    var fileName = fileUrl.Substring(lastSlash + 1);
+                    var cleanFileName = fileName.Split('?')[0];
+                    if (!string.IsNullOrWhiteSpace(cleanFileName))
+                        return "/" + cleanFileName;
+                }
+            }
+
+            throw new System.ArgumentException("Could not extract Dropbox path from URL.", nameof(fileUrl));
         }
 
         public string GetDownloadUrl(string fileUrl)
@@ -83,11 +113,5 @@ namespace MasterWord.Services
             }
             return fileUrl;
         }
-    }
-
-    public class DropboxDeleteResult
-    {
-        public bool Success { get; set; }
-        public string ErrorMessage { get; set; }
     }
 }

@@ -60,8 +60,8 @@ namespace MasterWord.Controllers
                     IsActive = item.IsActive,
                     Sequence = Sequence + 1,
                     FilePath = item.FilePath,
-                    PreviewUrl = ConvertDropboxUrlForPreview(item.FilePath),
-                    DownloadUrl = ConvertDropboxUrlForDownload(item.FilePath)
+                    //PreviewUrl = ConvertDropboxUrlForPreview(item.FilePath),
+                    //DownloadUrl = ConvertDropboxUrlForDownload(item.FilePath)
                 });
                 Sequence = Sequence + 1;
             }
@@ -109,8 +109,6 @@ namespace MasterWord.Controllers
                 word.IsDeleted,
                 word.IsActive,
                 FilePath = word.FilePath ?? string.Empty,
-                PreviewUrl = ConvertDropboxUrlForPreview(word.FilePath ?? string.Empty),
-                DownloadUrl = ConvertDropboxUrlForDownload(word.FilePath ?? string.Empty)
             };
             return Ok(result);
         }
@@ -234,8 +232,6 @@ namespace MasterWord.Controllers
                     {
                         AlreadyExists = true,
                         FileUrl = fileRecord.FilePath,
-                        PreviewUrl = ConvertDropboxUrlForPreview(fileRecord.FilePath),
-                        DownloadUrl = ConvertDropboxUrlForDownload(fileRecord.FilePath),
                         Message = "Cannot upload: this record already has a file."
                     });
                 }
@@ -257,8 +253,6 @@ namespace MasterWord.Controllers
             {
                 FileName = result.FileName!,
                 FileUrl = result.FileUrl!,
-                PreviewUrl = ConvertDropboxUrlForPreview(result.FileUrl!),
-                DownloadUrl = ConvertDropboxUrlForDownload(result.FileUrl!)
             });
         }
 
@@ -275,8 +269,7 @@ namespace MasterWord.Controllers
                 return NotFound(new { error = "File not found for this record." });
 
             var deleteResult = await _dropboxService.DeleteFileAsync(fileRecord.FilePath, cancellationToken);
-
-            if (!deleteResult.Success)
+            if (!deleteResult.Success && (deleteResult.ErrorMessage == null || !deleteResult.ErrorMessage.Contains("not_found")))
                 return StatusCode(500, new { error = deleteResult.ErrorMessage });
 
             fileRecord.FilePath = string.Empty;
@@ -284,28 +277,6 @@ namespace MasterWord.Controllers
             await _dbContext.SaveChangesAsync(cancellationToken);
 
             return Ok(new { message = "File deleted successfully." });
-        }
-
-        private string ConvertDropboxUrlForPreview(string url)
-        {
-            if (string.IsNullOrEmpty(url)) return string.Empty;
-            int idx = url.LastIndexOf("=1");
-            if (idx >= 0 && idx == url.Length - 2)
-            {
-                return url.Substring(0, idx) + "=0";
-            }
-            return url;
-        }
-
-        private string ConvertDropboxUrlForDownload(string url)
-        {
-            if (string.IsNullOrEmpty(url)) return string.Empty;
-            int idx = url.LastIndexOf("=0");
-            if (idx >= 0 && idx == url.Length - 2)
-            {
-                return url.Substring(0, idx) + "=1";
-            }
-            return url;
         }
     }
 }
