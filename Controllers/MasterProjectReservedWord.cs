@@ -60,8 +60,6 @@ namespace MasterWord.Controllers
                     IsActive = item.IsActive,
                     Sequence = Sequence + 1,
                     FilePath = item.FilePath,
-                    //PreviewUrl = ConvertDropboxUrlForPreview(item.FilePath),
-                    //DownloadUrl = ConvertDropboxUrlForDownload(item.FilePath)
                 });
                 Sequence = Sequence + 1;
             }
@@ -245,6 +243,8 @@ namespace MasterWord.Controllers
             if (fileRecord != null)
             {
                 fileRecord.FilePath = result.FileUrl;
+                fileRecord.UpdateDate = DateTime.UtcNow;
+                fileRecord.UpdateBy = "System";
                 _dbContext.Update(fileRecord);
                 await _dbContext.SaveChangesAsync(cancellationToken);
             }
@@ -273,10 +273,15 @@ namespace MasterWord.Controllers
                 return StatusCode(500, new { error = deleteResult.ErrorMessage });
 
             fileRecord.FilePath = string.Empty;
+            fileRecord.UpdateDate = DateTime.UtcNow;
+            fileRecord.UpdateBy = "System";
             _dbContext.Update(fileRecord);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            return Ok(new { message = "File deleted successfully." });
+            return Ok(new
+            {
+                message = "ลบไฟล์สำเร็จ"
+            });
         }
     }
 }

@@ -38,7 +38,7 @@ namespace MasterWord.Services
                 );
 
                 var sharedLink = await dbx.Sharing.CreateSharedLinkWithSettingsAsync(dropboxPath);
-
+                var updatedDate = DateTime.Now;
                 return new FileUploadResult
                 {
                     Success = true,
@@ -52,21 +52,22 @@ namespace MasterWord.Services
             }
         }
 
-            public async Task<DropboxDeleteResult> DeleteFileAsync(string fileUrl, CancellationToken cancellationToken)
+        public async Task<DropboxDeleteResult> DeleteFileAsync(string fileUrl, CancellationToken cancellationToken)
+        {
+            try
             {
-                try
-                {
-                    var dropboxPath = ExtractDropboxPath(fileUrl);
-                    using var dbx = new DropboxClient(_accessToken);
-                    await dbx.Files.DeleteV2Async(dropboxPath);
-                    return new DropboxDeleteResult { Success = true  };
-                }
-                catch (System.Exception ex)
-                {
-                    return new DropboxDeleteResult { Success = false, ErrorMessage = ex.Message };
-                }
-            }
+                var dropboxPath = ExtractDropboxPath(fileUrl);
+                using var dbx = new DropboxClient(_accessToken);
+                await dbx.Files.DeleteV2Async(dropboxPath);
+                var updatedDate = DateTime.Now;
 
+                return new DropboxDeleteResult { Success = true };
+            }
+            catch (System.Exception ex)
+            {
+                return new DropboxDeleteResult { Success = false, ErrorMessage = ex.Message };
+            }
+        }
 
         private string ExtractDropboxPath(string fileUrl)
         {
