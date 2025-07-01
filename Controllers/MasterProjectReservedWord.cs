@@ -74,6 +74,54 @@ namespace MasterWord.Controllers
             }
         }
 
+        [HttpGet("all-admin")]
+        public async Task<IActionResult> GetAllAdmin()
+        {
+            var allWords = await _dbContext.MasterProjectReservedWord_BK
+                                           .OrderByDescending(w => w.UpdateDate ?? w.CreateDate)
+                                           .Select(w => new
+                                           {
+                                               w.Id,
+                                               WordName = w.WordName ?? string.Empty,
+                                               w.CreateDate,
+                                               CreateBy = w.CreateBy ?? string.Empty,
+                                               w.UpdateDate,
+                                               UpdateBy = w.UpdateBy ?? string.Empty,
+                                               w.IsDeleted,
+                                               w.IsActive,
+                                               FilePath = w.FilePath ?? string.Empty
+                                           })
+                                           .ToListAsync();
+            List<object> _allWords = new List<object>();
+            int Sequence = 0;
+            foreach (var item in allWords)
+            {
+                _allWords.Add(new
+                {
+                    Id = item.Id,
+                    WordName = item.WordName,
+                    CreateDate = item.CreateDate,
+                    CreateBy = item.CreateBy,
+                    UpdateDate = item.UpdateDate,
+                    UpdateBy = item.UpdateBy,
+                    IsDeleted = item.IsDeleted,
+                    IsActive = item.IsActive,
+                    Sequence = Sequence + 1,
+                    FilePath = item.FilePath,
+                });
+                Sequence = Sequence + 1;
+            }
+
+            if (_allWords.Any())
+            {
+                return Ok(_allWords);
+            }
+            else
+            {
+                return NoContent();
+            }
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetId(string id)
         {
@@ -135,7 +183,7 @@ namespace MasterWord.Controllers
                 CreateBy = "System",
                 UpdateDate = null,
                 UpdateBy = "System",
-                IsDeleted = false,
+                IsDeleted = req.IsDeleted ?? false,
                 IsActive = req.IsActive ?? true,
                 FilePath = string.Empty
             };
@@ -173,7 +221,7 @@ namespace MasterWord.Controllers
             }
 
             var wordToUpdate = await _dbContext.MasterProjectReservedWord_BK
-                .FirstOrDefaultAsync(w => w.Id == id && (w.IsDeleted == null || w.IsDeleted == false));
+                .FirstOrDefaultAsync(w => w.Id == id);
 
             if (wordToUpdate == null)
             {
@@ -181,7 +229,12 @@ namespace MasterWord.Controllers
             }
 
             wordToUpdate.WordName = req.WordName;
-            wordToUpdate.IsActive = req.IsActive ?? true;
+            if (req.IsActive.HasValue)
+                wordToUpdate.IsActive = req.IsActive.Value;
+
+            if (req.IsDeleted.HasValue)
+                wordToUpdate.IsDeleted = req.IsDeleted.Value;
+
             wordToUpdate.UpdateDate = DateTime.UtcNow;
             wordToUpdate.UpdateBy = "System";
 

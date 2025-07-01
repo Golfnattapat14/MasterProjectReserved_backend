@@ -38,6 +38,8 @@ public class MasterProjectReservedWord_BKReq
     public required string WordName { get; set; }
 
     public bool? IsActive { get; set; }
+    
+    public bool? IsDeleted { get; set; }
 
 }
 
