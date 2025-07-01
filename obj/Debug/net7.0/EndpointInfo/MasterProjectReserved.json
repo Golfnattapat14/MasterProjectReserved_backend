@@ -17,6 +17,18 @@
         }
       }
     },
+    "/api/MasterWord/all-admin": {
+      "get": {
+        "tags": [
+          "MasterWord"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/MasterWord/{id}": {
       "get": {
         "tags": [
@@ -204,6 +216,10 @@
             "nullable": true
           },
           "IsActive": {
+            "type": "boolean",
+            "nullable": true
+          },
+          "IsDeleted": {
             "type": "boolean",
             "nullable": true
           }

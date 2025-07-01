@@ -80,6 +80,16 @@
   },
   {
     "ContainingType": "MasterWord.Controllers.MasterWord",
+    "Method": "GetAllAdmin",
+    "RelativePath": "api/MasterWord/all-admin",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MasterWord.Controllers.MasterWord",
     "Method": "DeleteFile",
     "RelativePath": "api/MasterWord/delete-file/{id}",
     "HttpMethod": "DELETE",
