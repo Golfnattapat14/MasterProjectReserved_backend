@@ -200,6 +200,37 @@
           }
         }
       }
+    },
+    "/api/MasterWord/PutAll": {
+      "put": {
+        "tags": [
+          "MasterWord"
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Data": {
+                    "type": "string"
+                  }
+                }
+              },
+              "encoding": {
+                "Data": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
     }
   },
   "components": {
