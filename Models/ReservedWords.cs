@@ -73,3 +73,8 @@ public class DropboxDeleteResult
     public bool Success { get; set; }
     public string? ErrorMessage { get; set; }
 }
+
+public class WordBulkUpdateMultipartDto
+{
+    public string Data { get; set; }
+}

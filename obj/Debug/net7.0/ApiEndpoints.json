@@ -106,6 +106,22 @@
   },
   {
     "ContainingType": "MasterWord.Controllers.MasterWord",
+    "Method": "PutAll",
+    "RelativePath": "api/MasterWord/PutAll",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "Data",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MasterWord.Controllers.MasterWord",
     "Method": "UploadFile",
     "RelativePath": "api/MasterWord/upload",
     "HttpMethod": "POST",

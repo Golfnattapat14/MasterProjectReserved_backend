@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MasterWord.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using ResDb;
 using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Linq;
 using System.Net.Mime;
 using System.Threading;
-using MasterWord.Services;
+using System.Threading.Tasks;
 
 namespace MasterWord.Controllers
 {
@@ -336,5 +337,67 @@ namespace MasterWord.Controllers
                 message = "ลบไฟล์สำเร็จ"
             });
         }
+
+        [HttpPut("PutAll")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> PutAll([FromForm] WordBulkUpdateMultipartDto form)
+        {
+            if (string.IsNullOrWhiteSpace(form.Data))
+                return BadRequest(new { message = "ไม่พบข้อมูลสำหรับอัปเดต" });
+
+            List<MasterProjectReservedWord_BKReq> items;
+            try
+            {
+                items = JsonConvert.DeserializeObject<List<MasterProjectReservedWord_BKReq>>(form.Data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "รูปแบบข้อมูลไม่ถูกต้อง", error = ex.Message });
+            }
+
+            var errors = new List<object>();
+
+            foreach (var req in items)
+            {
+                if (string.IsNullOrWhiteSpace(req.Id) || string.IsNullOrWhiteSpace(req.WordName))
+                {
+                    errors.Add(new { id = req.Id, error = "Id และ WordName ต้องไม่ว่าง" });
+                    continue;
+                }
+
+                var word = await _dbContext.MasterProjectReservedWord_BK.FindAsync(req.Id);
+                if (word == null)
+                {
+                    errors.Add(new { id = req.Id, error = "ไม่พบคำที่ต้องการแก้ไข" });
+                    continue;
+                }
+
+                bool isNameUsed = await _dbContext.MasterProjectReservedWord_BK
+                    .AnyAsync(w => w.WordName == req.WordName && w.Id != req.Id && (w.IsDeleted == null || w.IsDeleted == false));
+
+                if (isNameUsed)
+                {
+                    errors.Add(new { id = req.Id, error = "ชื่อนี้มีอยู่ในระบบอยู่แล้ว" });
+                    continue;
+                }
+
+                word.WordName = req.WordName;
+                if (req.IsActive.HasValue) word.IsActive = req.IsActive.Value;
+                if (req.IsDeleted.HasValue) word.IsDeleted = req.IsDeleted.Value;
+                word.UpdateDate = DateTime.UtcNow;
+                word.UpdateBy = "System";
+
+                _dbContext.MasterProjectReservedWord_BK.Update(word);
+            }
+
+            await _dbContext.SaveChangesAsync();
+
+            if (errors.Any())
+                return BadRequest(new { message = "อัปเดตบางรายการไม่สำเร็จ", errors });
+
+            return Ok(new { message = "อัปเดตทั้งหมดสำเร็จ" });
+        }
+
+
     }
 }
