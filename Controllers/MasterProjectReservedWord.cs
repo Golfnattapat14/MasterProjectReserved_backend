@@ -214,55 +214,59 @@ namespace MasterWord.Controllers
             return CreatedAtAction(nameof(GetId), new { id = newWord.Id }, newWord);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutWord(string id, [FromBody] MasterProjectReservedWord_BKReq req)
+        [HttpPut("PutWords")]
+        public async Task<IActionResult> PutWords([FromBody] List<MasterProjectReservedWord_BKReq> list)
         {
             if (!ModelState.IsValid)
             {
-                var errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+                var errors = ModelState.Values.SelectMany(v => v.Errors)
+                    .Select(e => e.ErrorMessage)
+                    .ToList();
                 return BadRequest(new { error = string.Join("; ", errors) });
             }
-            if (id != req.Id)
+
+            foreach (var req in list)
             {
-                return BadRequest(new { error = "ID mismatch between route and request body." });
+                if (string.IsNullOrWhiteSpace(req.WordName))
+                {
+                    return BadRequest(new { error = "Word Name cannot be empty." });
+                }
+
+                bool isNameUsed = await _dbContext.MasterProjectReservedWord_BK
+                    .AnyAsync(w => w.WordName == req.WordName && w.Id != req.Id && (w.IsDeleted == null || w.IsDeleted == false));
+
+                if (isNameUsed)
+                {
+                    return Conflict(new { error = $"ชื่อ {req.WordName} มีอยู่ในระบบอยู่แล้ว : กรุณาใช้ชื่ออื่น" });
+                }
+
+                var wordToUpdate = await _dbContext.MasterProjectReservedWord_BK
+                    .FirstOrDefaultAsync(w => w.Id == req.Id);
+
+                if (wordToUpdate == null)
+                {
+                    return NotFound(new { error = $"ไม่พบคำ Id {req.Id}" });
+                }
+
+                wordToUpdate.WordName = req.WordName;
+                if (req.IsActive.HasValue)
+                    wordToUpdate.IsActive = req.IsActive.Value;
+
+                if (req.IsDeleted.HasValue)
+                    wordToUpdate.IsDeleted = req.IsDeleted.Value;
+
+                wordToUpdate.UpdateDate = DateTime.UtcNow;
+                wordToUpdate.UpdateBy = "System";
+
+                _dbContext.MasterProjectReservedWord_BK.Update(wordToUpdate);
             }
 
-            if (string.IsNullOrWhiteSpace(req.WordName))
-            {
-                return BadRequest(new { error = "Word Name cannot be empty." });
-            }
-
-            bool isNameUsed = await _dbContext.MasterProjectReservedWord_BK
-                .AnyAsync(w => w.WordName == req.WordName && w.Id != id && (w.IsDeleted == null || w.IsDeleted == false));
-
-            if (isNameUsed)
-            {
-                return Conflict(new { error = "ชื่อนี้มีอยู่ในระบบอยู่แล้ว : กรุณาใช้ชื่ออื่น" });
-            }
-
-            var wordToUpdate = await _dbContext.MasterProjectReservedWord_BK
-                .FirstOrDefaultAsync(w => w.Id == id);
-
-            if (wordToUpdate == null)
-            {
-                return NotFound(new { error = "Word not found." });
-            }
-
-            wordToUpdate.WordName = req.WordName;
-            if (req.IsActive.HasValue)
-                wordToUpdate.IsActive = req.IsActive.Value;
-
-            if (req.IsDeleted.HasValue)
-                wordToUpdate.IsDeleted = req.IsDeleted.Value;
-
-            wordToUpdate.UpdateDate = DateTime.UtcNow;
-            wordToUpdate.UpdateBy = "System";
-
-            _dbContext.MasterProjectReservedWord_BK.Update(wordToUpdate);
             await _dbContext.SaveChangesAsync();
-
-            return Ok(wordToUpdate);
+            return Ok(new { message = "Updated successfully", count = list.Count });
         }
+
+
+
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteId(string id)
