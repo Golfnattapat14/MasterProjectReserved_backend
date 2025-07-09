@@ -160,6 +160,25 @@ namespace MasterWord.Controllers
             return Ok(result);
         }
 
+
+        [HttpPost("GetMulti")]
+        public async Task<List<MasterProjectReservedWord_BKReq>> GetMulti([FromBody] List<string> ids)
+        {
+            var words = await _dbContext.MasterProjectReservedWord_BK
+                .Where(w => ids.Contains(w.Id))
+                .Select(w => new MasterProjectReservedWord_BKReq
+                {
+                    Id = w.Id,
+                    WordName = w.WordName,
+                    IsActive = w.IsActive,
+                    IsDeleted = w.IsDeleted
+                })
+                .ToListAsync();
+
+            return words ?? new List<MasterProjectReservedWord_BKReq>();
+        }
+   
+
         [HttpPost]
         public async Task<IActionResult> CreateWord([FromBody] MasterProjectReservedWord_BKReq req)
         {
@@ -340,7 +359,7 @@ namespace MasterWord.Controllers
 
         [HttpPut("PutAll")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> PutAll([FromForm] WordBulkUpdateMultipartDto form)
+        public async Task<IActionResult> PutAll([FromBody] WordBulkUpdateMultipartDto form)
         {
             if (string.IsNullOrWhiteSpace(form.Data))
                 return BadRequest(new { message = "ไม่พบข้อมูลสำหรับอัปเดต" });

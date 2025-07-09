@@ -106,6 +106,32 @@
   },
   {
     "ContainingType": "MasterWord.Controllers.MasterWord",
+    "Method": "GetMulti",
+    "RelativePath": "api/MasterWord/GetMulti",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "ids",
+        "Type": "System.Collections.Generic.List\u00601[[System.String, System.Private.CoreLib, Version=7.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[ResDb.MasterProjectReservedWord_BKReq, MasterProjectReserved, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "MasterWord.Controllers.MasterWord",
     "Method": "PutAll",
     "RelativePath": "api/MasterWord/PutAll",
     "HttpMethod": "PUT",
@@ -113,9 +139,9 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "Data",
-        "Type": "System.String",
-        "IsRequired": false
+        "Name": "form",
+        "Type": "ResDb.WordBulkUpdateMultipartDto",
+        "IsRequired": true
       }
     ],
     "ReturnTypes": []

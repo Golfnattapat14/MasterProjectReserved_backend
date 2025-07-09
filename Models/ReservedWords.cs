@@ -78,3 +78,9 @@ public class WordBulkUpdateMultipartDto
 {
     public string Data { get; set; }
 }
+
+//public class MasterProjectReservedWord_BKGet
+//{
+//    public string Id { get; set; }
+
+//}

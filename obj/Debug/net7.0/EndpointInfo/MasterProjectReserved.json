@@ -110,6 +110,72 @@
         }
       }
     },
+    "/api/MasterWord/GetMulti": {
+      "post": {
+        "tags": [
+          "MasterWord"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MasterProjectReservedWord_BKReq"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MasterProjectReservedWord_BKReq"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MasterProjectReservedWord_BKReq"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/MasterWord": {
       "post": {
         "tags": [
@@ -210,17 +276,7 @@
           "content": {
             "multipart/form-data": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "Data": {
-                    "type": "string"
-                  }
-                }
-              },
-              "encoding": {
-                "Data": {
-                  "style": "form"
-                }
+                "$ref": "#/components/schemas/WordBulkUpdateMultipartDto"
               }
             }
           }
@@ -252,6 +308,16 @@
           },
           "IsDeleted": {
             "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WordBulkUpdateMultipartDto": {
+        "type": "object",
+        "properties": {
+          "Data": {
+            "type": "string",
             "nullable": true
           }
         },
