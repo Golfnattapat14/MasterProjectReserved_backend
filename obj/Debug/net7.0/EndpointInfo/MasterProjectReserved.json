@@ -50,45 +50,6 @@
           }
         }
       },
-      "put": {
-        "tags": [
-          "MasterWord"
-        ],
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MasterProjectReservedWord_BKReq"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MasterProjectReservedWord_BKReq"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/MasterProjectReservedWord_BKReq"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
-      },
       "delete": {
         "tags": [
           "MasterWord"
@@ -196,6 +157,46 @@
             "application/*+json": {
               "schema": {
                 "$ref": "#/components/schemas/MasterProjectReservedWord_BKReq"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/MasterWord/PutWords": {
+      "put": {
+        "tags": [
+          "MasterWord"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MasterProjectReservedWord_BKReq"
+                }
+              }
+            },
+            "text/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MasterProjectReservedWord_BKReq"
+                }
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MasterProjectReservedWord_BKReq"
+                }
               }
             }
           }

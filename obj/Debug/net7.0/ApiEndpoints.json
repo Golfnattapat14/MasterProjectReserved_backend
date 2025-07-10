@@ -33,27 +33,6 @@
   },
   {
     "ContainingType": "MasterWord.Controllers.MasterWord",
-    "Method": "PutWord",
-    "RelativePath": "api/MasterWord/{id}",
-    "HttpMethod": "PUT",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "id",
-        "Type": "System.String",
-        "IsRequired": true
-      },
-      {
-        "Name": "req",
-        "Type": "ResDb.MasterProjectReservedWord_BKReq",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
-  },
-  {
-    "ContainingType": "MasterWord.Controllers.MasterWord",
     "Method": "DeleteId",
     "RelativePath": "api/MasterWord/{id}",
     "HttpMethod": "DELETE",
@@ -141,6 +120,22 @@
       {
         "Name": "form",
         "Type": "ResDb.WordBulkUpdateMultipartDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MasterWord.Controllers.MasterWord",
+    "Method": "PutWords",
+    "RelativePath": "api/MasterWord/PutWords",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "list",
+        "Type": "System.Collections.Generic.List\u00601[[ResDb.MasterProjectReservedWord_BKReq, MasterProjectReserved, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
         "IsRequired": true
       }
     ],
