@@ -27,53 +27,56 @@ namespace MasterWord.Controllers
         }
 
         [HttpGet("all")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(int page = 1, int pageSize = 10)
         {
-            var allWords = await _dbContext.MasterProjectReservedWord_BK
-                                           .Where(w => w.IsDeleted == false)
-                                           .OrderByDescending(w => w.UpdateDate ?? w.CreateDate)
-                                           .Select(w => new
-                                           {
-                                               w.Id,
-                                               WordName = w.WordName ?? string.Empty,
-                                               w.CreateDate,
-                                               CreateBy = w.CreateBy ?? string.Empty,
-                                               w.UpdateDate,
-                                               UpdateBy = w.UpdateBy ?? string.Empty,
-                                               w.IsDeleted,
-                                               w.IsActive,
-                                               FilePath = w.FilePath ?? string.Empty
-                                           })
-                                           .ToListAsync();
-            List<object> _allWords = new List<object>();
-            int Sequence = 0;
-            foreach (var item in allWords)
-            {
-                _allWords.Add(new
-                {
-                    Id = item.Id,
-                    WordName = item.WordName,
-                    CreateDate = item.CreateDate,
-                    CreateBy = item.CreateBy,
-                    UpdateDate = item.UpdateDate,
-                    UpdateBy = item.UpdateBy,
-                    IsDeleted = item.IsDeleted,
-                    IsActive = item.IsActive,
-                    Sequence = Sequence + 1,
-                    FilePath = item.FilePath,
-                });
-                Sequence = Sequence + 1;
-            }
+            var query = _dbContext.MasterProjectReservedWord_BK
+                        .Where(w => w.IsDeleted == false)
+                        .OrderByDescending(w => w.UpdateDate ?? w.CreateDate)
+                        .Select(w => new
+                        {
+                            w.Id,
+                            WordName = w.WordName ?? string.Empty,
+                            w.CreateDate,
+                            CreateBy = w.CreateBy ?? string.Empty,
+                            w.UpdateDate,
+                            UpdateBy = w.UpdateBy ?? string.Empty,
+                            w.IsDeleted,
+                            w.IsActive,
+                            FilePath = w.FilePath ?? string.Empty
+                        });
 
-            if (_allWords.Any())
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+            var items = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var orderItem = items.Select((item, index) => new
             {
-                return Ok(_allWords);
-            }
-            else
+                item.Id,
+                item.WordName,
+                item.CreateDate,
+                item.CreateBy,
+                item.UpdateDate,
+                item.UpdateBy,
+                item.IsDeleted,
+                item.IsActive,
+                item.FilePath,
+                Sequence = ((page - 1) * pageSize) + index + 1
+            });
+
+            return Ok(new
             {
-                return NoContent();
-            }
+                currentPage = page,
+                totalPages,
+                pageSize,
+                totalItems,
+                items = orderItem
+            });
         }
+
 
         [HttpGet("all-admin")]
         public async Task<IActionResult> GetAllAdmin()
